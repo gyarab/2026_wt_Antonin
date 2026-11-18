@@ -12,7 +12,7 @@ Tento repozitář slouží jako přehled mých školních prací, projektů a pr
 |:---|:---|
 | 🌐 Webové stránky | HTML, CSS, Bootstrap a JavaScript |
 | 💻 Programování | Java, Godot a další programovací úlohy |
-| 📐 Matematika | Příklady, procvičování a školní úkoly |
+| 📐 GameDev | Vytváření zábavných a originálních her |
 | 📚 Ostatní | Další školní práce a projekty |
 
 ##  Používané technologie
