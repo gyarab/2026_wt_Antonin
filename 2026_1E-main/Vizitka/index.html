@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="cs">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Henry Stickman | Vizitka</title>
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: Arial, sans-serif;
+        background: #f3f3f3;
+      }
+      .card {
+        width: 760px;
+        background: #fff;
+        padding: 18px;
+        display: flex;
+        gap: 20px;
+        border-radius: 8px;
+      }
+      .avatar {
+        width: 300px;
+        min-height: 420px;
+        overflow: hidden;
+        background: #ddd;
+        flex-shrink: 0;
+      }
+      .avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top center;
+        display: block;
+        border: 2px solid #808080;
+        border-radius: 8px;
+      }
+      .content { flex: 1; }
+      h1 { margin: 0 0 10px; font-size: 2.2rem; }
+      .role { margin: 0 0 18px; }
+      .info {
+        display: grid;
+        gap: 10px;
+        margin: 0;
+      }
+      .info p {
+        margin: 0;
+        line-height: 1.5;
+      }
+      .button-wrap { margin-top: 20px; }
+      button {
+        padding: 10px 16px;
+        border: none;
+        background: #222;
+        color: #fff;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card" id="card">
+      <div class="avatar" aria-label="Henry Stickman avatar">
+        <img src="Henry.jpg" alt="Henry Stickman" />
+      </div>
+
+      <div class="content">
+        <h1>Henry Stickman</h1>
+        <p class="role">Kriminální odborník</p>
+
+        <div class="info">
+          <p><strong>Trestné činy:</strong> krádeže, podvody, útoky s kartou, vandalismus, únos, výhružky, padělání podpisů, přepadení, podplácení</p>
+          <p><strong>Věk:</strong> 29 let</p>
+          <p><strong>Výška:</strong> 183 cm</p>
+          <p><strong>Rasa:</strong> Stickman</p>
+        </div>
+
+        <div class="button-wrap">
+          <button type="button" onclick="changeTextColor()">Změnit barvu písma</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function changeTextColor() {
+        const card = document.getElementById('card');
+        const colors = ['#b00020', '#ff8c00', '#2e8b57', '#6a0dad', '#0066cc', '#d42121', '#ff1493', '#00ced1', '#ff4500', '#32cd32', '#ff69b4', '#1e90ff', '#ff6347', '#8a2be2', '#00fa9a', '#ff00ff', '#ffa500', '#00bfff', '#adff2f', '#ff1493'];
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+        card.style.color = randomColor;
+      }
+    </script>
+  </body>
+</html>

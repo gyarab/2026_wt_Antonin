@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="cs">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Počítadlo clicků</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 80vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .box {
+        text-align: center;
+      }
+
+      .row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+      }
+
+      button {
+        background: pink;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+      <h1>Počítadlo clicků</h1>
+      <div id="counter">0</div>
+      <div class="row">
+        <button id="clickButton">Tlačítko</button>
+        <div id="cps">CPS: 0</div>
+      </div>
+    </div>
+
+    <script>
+      let totalClicks = 0;
+      let clicksThisSecond = 0;
+      let cps = 0;
+
+      const counter = document.getElementById('counter');
+      const button = document.getElementById('clickButton');
+      const cpsDisplay = document.getElementById('cps');
+
+      button.addEventListener('click', () => {
+        totalClicks++;
+        clicksThisSecond++;
+        counter.textContent = totalClicks;
+      });
+
+      setInterval(() => {
+        cps = clicksThisSecond;
+        clicksThisSecond = 0;
+        cpsDisplay.textContent = 'CPS: ' + cps;
+      }, 1000);
+    </script>
+  </body>
+</html>
