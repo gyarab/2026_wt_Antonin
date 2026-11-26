@@ -1,5 +1,7 @@
 # BILLA
 
+[![Logo BILLA](https://assets-eu-01.kc-usercontent.com:443/0463a531-feb4-01ea-1c62-2927429dcf8a/d50a6249-16ff-4afa-8a06-1ffc57eefdd9/BILLA_znacka_logo.png?w=155&fm=webp&lossless=0&q=80)](https://www.billa.cz/)
+
 ## Psychologie barev
 
 Společnost **BILLA** ve své vizuální identitě využívá především červenou a žlutou barvu. Obě barvy mají určitý psychologický význam a pomáhají ovlivňovat vnímání zákazníků.
