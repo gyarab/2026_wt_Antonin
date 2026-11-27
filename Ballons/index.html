@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="cs" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balloons</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@6.0.0-alpha.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body { margin: 0; min-height: 100vh; overflow-x: hidden; }
+
+        .stats-bar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 6px 18px;
+        }
+
+        .stats-bar .stats { display: flex; gap: 6px; }
+
+        .plocha {
+            position: relative;
+            height: calc(100vh - 180px);
+            min-height: 420px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #dff3ee, #f8f1dc);
+            user-select: none;
+        }
+
+        .plocha-text {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-content: center;
+            margin: 0;
+            text-align: center;
+            color: #787d96;
+            pointer-events: none;
+        }
+
+        .balonek {
+            --size: 64px;
+            position: absolute;
+            width: var(--size);
+            height: var(--size);
+            border: 2px solid rgb(45 52 88 / 12%);
+            border-radius: 50%;
+            padding: 0;
+            cursor: crosshair;
+            box-shadow: inset -8px -10px 15px rgb(0 0 0 / 12%), inset 7px 7px 12px rgb(255 255 255 / 30%), 0 8px 15px rgb(45 52 88 / 10%);
+            transition: filter .12s;
+        }
+
+        .balonek::after {
+            content: "";
+            position: absolute;
+            left: calc(50% - 6px);
+            bottom: -12px;
+            width: 12px;
+            height: 14px;
+            background: inherit;
+            clip-path: polygon(50% 0, 100% 100%, 0 100%);
+        }
+
+        .balonek:hover { filter: brightness(1.06); }
+
+        .balonek.praskl { pointer-events: none; animation: prask .18s ease-out forwards; }
+
+        @keyframes prask {
+            50% { transform: scale(1.25); opacity: .75; }
+            100% { transform: scale(.05); opacity: 0; }
+        }
+
+        .nastaveni { min-height: calc(100vh - 80px); }
+
+        .start-btn { margin-top: auto; }
+
+        @media (max-width: 1023px) {
+            .nastaveni { min-height: auto; }
+            .plocha { height: 65vh; }
+        }
+
+        @media (max-width: 620px) {
+            .stats-bar { align-items: stretch; }
+            .brand { display: none; }
+            .stats { width: 100%; }
+            .stats .badge { flex: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar bg-1 stats-bar">
+        <span class="navbar-brand fw-bold brand">🎈 Balloons</span>
+        <div class="stats">
+            <span class="badge theme-secondary">Hráč: <span id="hrac">—</span></span>
+            <span class="badge theme-secondary">Čas: <span id="cas">0.0 s</span></span>
+            <span class="badge theme-primary">Skóre: <span id="skore">0</span></span>
+            <span class="badge theme-secondary">Zbývá: <span id="zbyva">0</span></span>
+        </div>
+    </nav>
+
+    <main class="container-fluid px-0">
+        <div class="row g-0">
+            <aside class="col-12 lg:col-4">
+                <div class="card h-100 rounded-0 border-start-0 border-bottom-0 nastaveni">
+                    <div class="card-body d-flex flex-column">
+                        <h1 class="h3 text-center mb-6">Nastavení hry</h1>
+
+                        <form id="nastaveni" class="d-flex flex-column gap-5 flex-grow-1">
+                            <div class="form-field">
+                                <label for="jmeno" class="form-label">Jméno hráče</label>
+                                <input type="text" id="jmeno" class="form-control" maxlength="24" placeholder="Napiš své jméno">
+                            </div>
+
+                            <div class="form-field">
+                                <label for="pocet" class="form-label">Počet balónků</label>
+                                <input type="number" id="pocet" class="form-control" min="1" max="50" value="12">
+                            </div>
+
+                            <div class="form-field">
+                                <label for="pohyb" class="form-label">Pohyb</label>
+                                <select id="pohyb" class="form-control">
+                                    <option value="none">Bez pohybu</option>
+                                    <option value="slow" selected>Pomalý pohyb</option>
+                                    <option value="fast">Rychlý pohyb</option>
+                                </select>
+                            </div>
+
+                            <fieldset class="form-field">
+                                <legend class="form-label">Režim hry</legend>
+                                <div class="d-grid gap-3">
+                                    <label class="form-field-card border d-flex gap-3 align-items-center">
+                                        <input type="radio" name="rezim" value="time" class="radio" checked>
+                                        Co nejvíc prasknutí za 20 sekund
+                                    </label>
+                                    <label class="form-field-card border d-flex gap-3 align-items-center">
+                                        <input type="radio" name="rezim" value="all" class="radio">
+                                        Prasknout všechny balónky
+                                    </label>
+                                </div>
+                            </fieldset>
+
+                            <button id="start" type="submit" class="btn-solid theme-primary w-100 start-btn">START</button>
+                        </form>
+                    </div>
+                </div>
+            </aside>
+
+            <section class="col-12 lg:col-8">
+                <div id="plocha" class="plocha">
+                    <p id="uvodniText" class="plocha-text">
+                        <strong class="fs-3">Připrav se!</strong>
+                        <span>Nastav hru a stiskni Start</span>
+                    </p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        const plocha = document.getElementById('plocha');
+        const uvodniText = document.getElementById('uvodniText');
+        const formular = document.getElementById('nastaveni');
+        const jmeno = document.getElementById('jmeno');
+        const pocet = document.getElementById('pocet');
+        const pohyb = document.getElementById('pohyb');
+        const startTlacitko = document.getElementById('start');
+
+        const hrac = document.getElementById('hrac');
+        const cas = document.getElementById('cas');
+        const skore = document.getElementById('skore');
+        const zbyva = document.getElementById('zbyva');
+
+        const barvy = ['#ff6b81', '#ffd166', '#06d6a0', '#56cfe1', '#9d78ff', '#ff9f43', '#ef476f', '#72ddf7'];
+        let balonky = [];
+        let skoreHodnota = 0;
+        let bezi = false;
+        let rezim = 'time';
+        let casovyLimit = null;
+        let animationFrame = null;
+
+        function nahodnaBarva() {
+            return barvy[Math.floor(Math.random() * barvy.length)];
+        }
+
+        function aktualizujStatistiky() {
+            hrac.textContent = jmeno.value.trim() || 'Anonym';
+            skore.textContent = skoreHodnota;
+            zbyva.textContent = balonky.length;
+        }
+
+        function odstranitBalonky() {
+            balonky.forEach(balonek => balonek.element.remove());
+            balonky = [];
+            plocha.querySelectorAll('.balonek').forEach(balonek => balonek.remove());
+        }
+
+        function vytvorBalonek() {
+            if (!bezi) return;
+
+            const velikost = Math.floor(Math.random() * 36) + 48;
+            const element = document.createElement('button');
+            element.type = 'button';
+            element.className = 'balonek';
+            element.style.setProperty('--size', `${velikost}px`);
+            element.style.backgroundColor = nahodnaBarva();
+            element.setAttribute('aria-label', 'Prasknout balónky');
+
+            const maxX = Math.max(0, plocha.clientWidth - velikost);
+            const maxY = Math.max(0, plocha.clientHeight - velikost);
+            let rychlost = pohyb.value === 'fast' ? 3.2 : pohyb.value === 'slow' ? 1.25 : 0;
+
+            const data = {
+                element,
+                x: Math.random() * maxX,
+                y: Math.random() * maxY,
+                vx: (Math.random() - 0.5) * rychlost * 2,
+                vy: (Math.random() - 0.5) * rychlost * 2,
+                velikost,
+                praskl: false
+            };
+
+            element.style.left = '0';
+            element.style.top = '0';
+            element.style.transform = `translate(${data.x}px, ${data.y}px)`;
+            element.addEventListener('pointerdown', () => prasknout(data));
+
+            plocha.appendChild(element);
+            balonky.push(data);
+            aktualizujStatistiky();
+        }
+
+        function prasknout(data) {
+            if (!bezi || data.praskl) return;
+
+            data.praskl = true;
+            skoreHodnota++;
+            data.element.classList.add('praskl');
+
+            setTimeout(() => {
+                data.element.remove();
+                balonky = balonky.filter(balonek => balonek !== data);
+
+                if (rezim === 'time' && bezi) {
+                    vytvorBalonek();
+                }
+
+                if (rezim === 'all' && bezi && balonky.length === 0) {
+                    ukonciHru(true);
+                }
+
+                aktualizujStatistiky();
+            }, 170);
+
+            aktualizujStatistiky();
+        }
+
+        function animuj() {
+            if (!bezi) return;
+
+            balonky.forEach(data => {
+                if (data.praskl) return;
+
+                data.x += data.vx;
+                data.y += data.vy;
+
+                if (data.x <= 0 || data.x >= plocha.clientWidth - data.velikost) {
+                    data.vx *= -1;
+                    data.x = Math.max(0, Math.min(data.x, plocha.clientWidth - data.velikost));
+                }
+
+                if (data.y <= 0 || data.y >= plocha.clientHeight - data.velikost) {
+                    data.vy *= -1;
+                    data.y = Math.max(0, Math.min(data.y, plocha.clientHeight - data.velikost));
+                }
+
+                data.element.style.transform = `translate(${data.x}px, ${data.y}px)`;
+            });
+
+            animationFrame = requestAnimationFrame(animuj);
+        }
+
+        function ukonciHru(dokonceno) {
+            bezi = false;
+            clearInterval(casovyLimit);
+            cancelAnimationFrame(animationFrame);
+
+            setTimeout(() => {
+                odstranitBalonky();
+                uvodniText.hidden = false;
+                uvodniText.innerHTML = `<strong class="fs-3">${dokonceno ? 'Hotovo!' : 'Čas vypršel!'}</strong><span>${jmeno.value.trim() || 'Anonym'}: ${skoreHodnota} prasklých balónků</span>`;
+                startTlacitko.textContent = 'HRÁT ZNOVU';
+                startTlacitko.disabled = false;
+                aktualizujStatistiky();
+            }, 180);
+        }
+
+        function spustitHru(event) {
+            event.preventDefault();
+
+            const pocetBalonku = Math.min(50, Math.max(1, parseInt(pocet.value, 10) || 12));
+            pocet.value = pocetBalonku;
+            rezim = document.querySelector('input[name="rezim"]:checked').value;
+
+            if (casovyLimit) clearInterval(casovyLimit);
+            if (animationFrame) cancelAnimationFrame(animationFrame);
+
+            odstranitBalonky();
+            skoreHodnota = 0;
+            bezi = true;
+            uvodniText.hidden = true;
+            startTlacitko.textContent = 'HRA PROBÍHÁ';
+            startTlacitko.disabled = true;
+
+            for (let i = 0; i < pocetBalonku; i++) vytvorBalonek();
+
+            if (rezim === 'time') {
+                const konec = performance.now() + 20000;
+                cas.textContent = '20.0 s';
+
+                casovyLimit = setInterval(() => {
+                    const zbyvajici = Math.max(0, (konec - performance.now()) / 1000);
+                    cas.textContent = `${zbyvajici.toFixed(1)} s`;
+                    if (zbyvajici <= 0) ukonciHru(false);
+                }, 50);
+            } else {
+                cas.textContent = '—';
+            }
+
+            aktualizujStatistiky();
+            animationFrame = requestAnimationFrame(animuj);
+        }
+
+        formular.addEventListener('submit', spustitHru);
+
+        jmeno.addEventListener('input', aktualizujStatistiky);
+
+        window.addEventListener('resize', () => {
+            balonky.forEach(data => {
+                data.x = Math.min(data.x, plocha.clientWidth - data.velikost);
+                data.y = Math.min(data.y, plocha.clientHeight - data.velikost);
+            });
+        });
+
+        aktualizujStatistiky();
+    </script>
+
+    <script type="module" src="https://cdn.jsdelivr.net/npm/bootstrap@6.0.0-alpha.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
